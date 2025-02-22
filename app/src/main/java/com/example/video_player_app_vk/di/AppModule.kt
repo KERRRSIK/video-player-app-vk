@@ -5,8 +5,7 @@ import androidx.room.Room
 import com.example.video_player_app_vk.data.VideoDatabase
 import com.example.video_player_app_vk.data.VideoRepository
 import com.example.video_player_app_vk.data.local.VideoDao
-import com.example.video_player_app_vk.data.network.ApiService
-import com.example.video_player_app_vk.data.network.RetrofitClient
+import com.example.video_player_app_vk.data.remote.ApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
