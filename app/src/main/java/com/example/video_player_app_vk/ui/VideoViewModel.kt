@@ -11,16 +11,3 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@HiltViewModel
-class VideoViewModel @Inject constructor(private val repository: VideoRepository) : ViewModel() {
-
-    private val _videoList = MutableStateFlow<List<VideoItem>>(emptyList())
-    val videoList: StateFlow<List<VideoItem>> = _videoList.asStateFlow()
-
-    fun loadVideos(apiKey: String) {
-        viewModelScope.launch {
-            val videos = repository.fetchVideos(apiKey)
-            _videoList.value = videos
-        }
-    }
-}

@@ -2,25 +2,30 @@ package com.example.video_player_app_vk.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.video_player_app_vk.data.model.VideoItem
+import com.example.video_player_app_vk.data.model.VideoEntity
 import com.example.video_player_app_vk.databinding.ItemVideoBinding
 
 class VideoAdapter(
-    private val onItemClick: (VideoItem) -> Unit
-) : ListAdapter<VideoItem, VideoAdapter.VideoViewHolder>(DiffCallback()) {
+    private val onItemClick: (VideoEntity) -> Unit
+) : RecyclerView.Adapter<VideoAdapter.VideoViewHolder>() {
 
-    inner class VideoViewHolder(private val binding: ItemVideoBinding)
-        : RecyclerView.ViewHolder(binding.root) {
-        fun bind(video: VideoItem) {
+    private var videos: List<VideoEntity> = emptyList()
+
+    fun submitList(newVideos: List<VideoEntity>) {
+        videos = newVideos
+        notifyDataSetChanged()
+    }
+
+    inner class VideoViewHolder(private val binding: ItemVideoBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(video: VideoEntity) {
             binding.videoTitle.text = video.title
             binding.videoDuration.text = "${video.duration} сек"
             Glide.with(binding.videoThumbnail.context)
-                .load(video.image)
+                .load(video.thumbnailUrl)
                 .into(binding.videoThumbnail)
+
             binding.root.setOnClickListener { onItemClick(video) }
         }
     }
@@ -31,11 +36,8 @@ class VideoAdapter(
     }
 
     override fun onBindViewHolder(holder: VideoViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(videos[position])
     }
 
-    class DiffCallback : DiffUtil.ItemCallback<VideoItem>() {
-        override fun areItemsTheSame(oldItem: VideoItem, newItem: VideoItem) = oldItem.id == newItem.id
-        override fun areContentsTheSame(oldItem: VideoItem, newItem: VideoItem) = oldItem == newItem
-    }
+    override fun getItemCount(): Int = videos.size
 }

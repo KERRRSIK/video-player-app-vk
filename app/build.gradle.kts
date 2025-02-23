@@ -46,6 +46,9 @@ android {
     kapt {
         correctErrorTypes = true
     }
+    hilt {
+        enableAggregatingTask = false
+    }
 }
 
 dependencies {

@@ -18,6 +18,7 @@ class VideoPlayerActivity : AppCompatActivity() {
 
     companion object {
         private const val EXTRA_VIDEO_URL = "video_url"
+
         fun newIntent(context: Context, videoUrl: String): Intent {
             return Intent(context, VideoPlayerActivity::class.java).apply {
                 putExtra(EXTRA_VIDEO_URL, videoUrl)
@@ -30,23 +31,18 @@ class VideoPlayerActivity : AppCompatActivity() {
         binding = ActivityVideoPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val videoUrl = intent.getStringExtra(EXTRA_VIDEO_URL) ?: ""
+        val videoUrl = intent.getStringExtra(EXTRA_VIDEO_URL) ?: return
         initializePlayer(videoUrl)
     }
 
     private fun initializePlayer(videoUrl: String) {
-        player = ExoPlayer.Builder(this).build().also { exoPlayer ->
-            binding.playerView.player = exoPlayer
+        player = ExoPlayer.Builder(this).build().also {
+            binding.playerView.player = it
             val mediaItem = MediaItem.fromUri(Uri.parse(videoUrl))
-            exoPlayer.setMediaItem(mediaItem)
-            exoPlayer.prepare()
-            exoPlayer.play()
+            it.setMediaItem(mediaItem)
+            it.prepare()
+            it.play()
         }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        player?.pause()
     }
 
     override fun onDestroy() {
