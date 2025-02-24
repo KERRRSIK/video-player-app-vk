@@ -1,7 +1,6 @@
 package com.example.video_player_app_vk.data
 
 import android.util.Log
-import com.example.video_player_app_vk.data.model.Clip
 import com.example.video_player_app_vk.data.model.VideoEntity
 import com.example.video_player_app_vk.data.remote.ApiService
 import java.text.SimpleDateFormat
@@ -24,7 +23,7 @@ class VideoRepository @Inject constructor(private val apiService: ApiService) {
             if (response.isSuccessful) {
                 val clips = response.body()?.data ?: emptyList()
                 Log.d("VideoRepository", "Loaded ${clips.size} clips")
-                // Преобразуем Clip в VideoEntity
+                // преобразуем Clip в VideoEntity
                 clips.map { clip ->
                     VideoEntity(
                         id = clip.id,

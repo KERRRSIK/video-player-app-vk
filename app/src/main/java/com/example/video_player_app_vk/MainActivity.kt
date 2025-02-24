@@ -2,7 +2,6 @@ package com.example.video_player_app_vk
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import com.example.video_player_app_vk.databinding.ActivityMainBinding
 import com.example.video_player_app_vk.ui.VideoListFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -16,7 +15,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        // Загружаем VideoListFragment
         supportFragmentManager.beginTransaction()
             .replace(binding.fragmentContainer.id, VideoListFragment())
             .commit()

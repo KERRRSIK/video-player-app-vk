@@ -1,7 +1,5 @@
 package com.example.video_player_app_vk.ui
 
-import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -18,12 +16,6 @@ class VideoPlayerActivity : AppCompatActivity() {
 
     companion object {
         private const val EXTRA_VIDEO_URL = "video_url"
-
-        fun newIntent(context: Context, videoUrl: String): Intent {
-            return Intent(context, VideoPlayerActivity::class.java).apply {
-                putExtra(EXTRA_VIDEO_URL, videoUrl)
-            }
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

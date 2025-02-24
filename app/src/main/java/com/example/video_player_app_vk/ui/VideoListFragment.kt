@@ -3,7 +3,6 @@ package com.example.video_player_app_vk.ui
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,7 +36,6 @@ class VideoListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         adapter = VideoAdapter { video ->
-            // Открываем видео через Intent (можно заменить на VideoPlayerActivity)
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(video.videoUrl))
             startActivity(intent)
         }
