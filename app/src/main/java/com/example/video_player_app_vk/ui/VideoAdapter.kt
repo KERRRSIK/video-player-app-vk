@@ -25,7 +25,6 @@ class VideoAdapter(
             Glide.with(binding.videoThumbnail.context)
                 .load(video.thumbnailUrl)
                 .into(binding.videoThumbnail)
-
             binding.root.setOnClickListener { onItemClick(video) }
         }
     }
@@ -41,3 +40,4 @@ class VideoAdapter(
 
     override fun getItemCount(): Int = videos.size
 }
+

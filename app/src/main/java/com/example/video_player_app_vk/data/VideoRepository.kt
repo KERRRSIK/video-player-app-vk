@@ -1,34 +1,54 @@
 package com.example.video_player_app_vk.data
 
 import android.util.Log
-import com.example.video_player_app_vk.data.local.VideoDao
+import com.example.video_player_app_vk.data.model.Clip
 import com.example.video_player_app_vk.data.model.VideoEntity
-import com.example.video_player_app_vk.data.network.RetrofitClient
+import com.example.video_player_app_vk.data.remote.ApiService
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 import javax.inject.Inject
 
-class VideoRepository @Inject constructor(
-    private val videoDao: VideoDao
-) {
 
-    suspend fun fetchVideos(): List<VideoEntity> {
+class VideoRepository @Inject constructor(private val apiService: ApiService) {
+
+    suspend fun getTopClips(authToken: String, clientId: String): List<VideoEntity> {
         return try {
-            val response = RetrofitClient.api.getVideos()
-                Log.e("VideoRepository", "No trending videos found.")
-                Log.e("VideoRepository", "Fetched ${response.data.size} videos from API.")
-            val videos = response.data.map { video ->
-                VideoEntity(
-                    id = video.id,
-                    title = video.name,
-                    duration = video.duration,
-                    thumbnailUrl = video.pictures.sizes.firstOrNull()?.link ?: "",
-                    videoUrl = video.link
-                )
+            val oneWeekAgo = getOneWeekAgoDate()
+            val response = apiService.getTopClips(
+                first = 10,
+                startedAt = oneWeekAgo,
+                authToken = "Bearer $authToken",
+                clientId = clientId
+            )
+            if (response.isSuccessful) {
+                val clips = response.body()?.data ?: emptyList()
+                Log.d("VideoRepository", "Loaded ${clips.size} clips")
+                // Преобразуем Clip в VideoEntity
+                clips.map { clip ->
+                    VideoEntity(
+                        id = clip.id,
+                        title = clip.title,
+                        thumbnailUrl = clip.thumbnail_url,
+                        duration = clip.duration.toInt(),
+                        videoUrl = clip.url
+                    )
+                }
+            } else {
+                Log.e("VideoRepository", "API error: ${response.errorBody()?.string()}")
+                emptyList()
             }
-            videoDao.clearVideos()
-            videoDao.insertVideos(videos)
-            videos
         } catch (e: Exception) {
-            videoDao.getAllVideos()
+            Log.e("VideoRepository", "Request exception: ${e.message}")
+            emptyList()
         }
+    }
+
+    private fun getOneWeekAgoDate(): String {
+        val calendar = Calendar.getInstance().apply {
+            add(Calendar.DAY_OF_YEAR, -7)
+        }
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
+        return sdf.format(calendar.time)
     }
 }

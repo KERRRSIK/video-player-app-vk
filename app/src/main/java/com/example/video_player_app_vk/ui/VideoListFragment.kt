@@ -1,5 +1,7 @@
 package com.example.video_player_app_vk.ui
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,12 +10,16 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.video_player_app_vk.databinding.FragmentVideoListBinding
+import com.example.video_player_app_vk.data.model.VideoEntity
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
+
+sealed class VideoState {
+    object Loading : VideoState()
+    data class Success(val videos: List<VideoEntity>) : VideoState()
+    data class Error(val message: String) : VideoState()
+}
 
 @AndroidEntryPoint
 class VideoListFragment : Fragment() {
@@ -25,43 +31,43 @@ class VideoListFragment : Fragment() {
     private lateinit var adapter: VideoAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        Log.d("VideoListFragment", "onCreateView called")
         _binding = FragmentVideoListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         adapter = VideoAdapter { video ->
-            // Открываем VideoPlayerActivity, передавая ссылку на видео
-            val intent = VideoPlayerActivity.newIntent(requireContext(), video.videoUrl)
+            // Открываем видео через Intent (можно заменить на VideoPlayerActivity)
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(video.videoUrl))
             startActivity(intent)
         }
-
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter
 
         binding.swipeRefreshLayout.setOnRefreshListener {
-            viewModel.loadVideos()
+            loadClips()
         }
 
-        // Подписка на Flow (StateFlow)
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.videoState.collectLatest { videos ->
-                binding.progressBar.isVisible = false
-                binding.recyclerView.isVisible = videos.isNotEmpty()
-                binding.errorTextView.isVisible = videos.isEmpty()
+        viewModel.videoState.observe(viewLifecycleOwner) { state ->
+            binding.progressBar.isVisible = state is VideoState.Loading
+            binding.recyclerView.isVisible = state is VideoState.Success
+            binding.errorTextView.isVisible = state is VideoState.Error
 
-                if (videos.isEmpty()) {
-                    binding.errorTextView.text = "Нет доступных видео"
-                } else {
-                    adapter.submitList(videos)
-                }
-
-                binding.swipeRefreshLayout.isRefreshing = false
+            when (state) {
+                is VideoState.Success -> adapter.submitList(state.videos)
+                is VideoState.Error -> binding.errorTextView.text = state.message
+                else -> {}
             }
+            binding.swipeRefreshLayout.isRefreshing = false
         }
 
-        viewModel.loadVideos()
+        loadClips()
+    }
+
+    private fun loadClips() {
+        val authToken = "k8qzkxcq98ub5pfvrxw0beztqlmu93"
+        val clientId = "5lw0x8clzh3157dzstskkb3e7r6jeb"
+        viewModel.loadTopClips(authToken, clientId)
     }
 
     override fun onDestroyView() {

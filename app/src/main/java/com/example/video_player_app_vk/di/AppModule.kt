@@ -21,14 +21,13 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-    private const val BASE_URL = "https://api.vimeo.com/"
+    private const val BASE_URL = "https://api.twitch.tv/helix/"
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit =
+    fun provideRetrofit(): Retrofit =
         Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -51,6 +50,6 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideVideoRepository(videoDao: VideoDao): VideoRepository =
-        VideoRepository(videoDao)
+    fun provideVideoRepository(apiService: ApiService): VideoRepository =
+        VideoRepository(apiService)
 }
